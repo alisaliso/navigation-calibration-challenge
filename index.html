@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Navigation Calibration Challenge</title>
+    <style>
+      html {
+        width: 100vw;
+        overflow: hidden;
+      }
+      body,
+      p {
+        margin: 0;
+        padding: 0;
+        font-family: "Glass TTY VT220", monospace;
+      }
+      :root {
+        --main-green: #00ff00;
+        --main-black: #000;
+        --ti-cursor-color: var(--main-green);
+      }
+      canvas {
+        display: block;
+        position: absolute;
+        width: 100vw;
+        height: 100vh;
+        top: 0;
+        left: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- A root element for TypeIt to target. -->
+    <div id="terminal">
+      <div id="terminal-title">Navigation Calibration Challenge</div>
+      <div id="terminal-body">
+        <p id="myMatrixElement"></p>
+        <p id="myElement"></p>
+      </div>
+    </div>
+
+    <canvas id="canvas"></canvas>
+
+    <style>
+      #terminal {
+        background-color: var(--main-black);
+        color: var(--main-green);
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+      }
+      #terminal-body {
+        text-align: left;
+        display: flex;
+        margin: 20px;
+        font-size: 0.8em;
+        line-height: 1.6em;
+        font-weight: 100;
+        height: 100vh;
+        display: flex;
+        flex-direction: column-reverse;
+        overflow: auto;
+      }
+      #terminal-title {
+        width: 100%;
+        color: var(--main-black);
+        background-color: var(--main-green);
+        padding: 0.3em 2em;
+        font-size: 0.8em;
+        font-weight: 100;
+        box-shadow: 0 0 2.5px var(--main-green), 0 0 5px var(--main-green),
+          0 0 7.5px var(--main-green);
+      }
+      #myElement {
+        text-shadow: 0 0 0.5px var(--main-green), 0 0 0.5px var(--main-green),
+          0 0 0.5px var(--main-green), 0 0 0.5px var(--main-green),
+          0 0 0.5px var(--main-green), 0 0 1px var(--main-green),
+          0 0 1px var(--main-green);
+      }
+      #myMatrixElement {
+        text-shadow: 0 0 0.5px var(--main-green), 0 0 0.5px var(--main-green),
+          0 0 0.5px var(--main-green), 0 0 0.5px var(--main-green),
+          0 0 0.5px var(--main-green), 0 0 1px var(--main-green),
+          0 0 1px var(--main-green);
+      }
+    </style>
+    <!-- The script itself, loaded AFTER your root element. -->
+    <script src="https://unpkg.com/typeit/dist/index.umd.js"></script>
+    <script type="module">
+      import { draw } from "./matrix.js";
+      let matrixInterval;
+      let isStarted = false;
+      const PAUSE_TIME = 300;
+      let isInstant = false;
+      const mainInstance = new TypeIt("#myElement", {
+        speed: 40,
+        cursorChar: "▋",
+      });
+
+      const startInstance = new TypeIt("#myMatrixElement", {
+        speed: 40,
+        cursorChar: "▋",
+      });
+
+      document.getElementById("myElement").style.display = "none";
+
+      const hasMatrixGotMe = localStorage.getItem("hasMatrixGotMe");
+
+      const initialize = () => {
+        document.getElementById("myElement").style.display = "block";
+        document.getElementById("myMatrixElement").style.display = "none";
+
+        mainInstance
+          .type(hasMatrixGotMe ? "" : "The Matrix has you...")
+          .pause(hasMatrixGotMe ? 0 : PAUSE_TIME)
+          .empty()
+          .exec(() => {
+            // Loop the animation
+            if (hasMatrixGotMe) return;
+            matrixInterval = setInterval(draw, 25);
+          })
+          .pause(hasMatrixGotMe ? 0 : 4500)
+          .exec(() => {
+            if (hasMatrixGotMe) return;
+            clearInterval(matrixInterval);
+            localStorage.setItem("hasMatrixGotMe", true);
+            document.getElementById("canvas").style.display = "none";
+          })
+          .type("Hello")
+          .break()
+          .type("DFDS engineer!")
+          .break()
+          .break()
+          .type(
+            "Something is wrong with global navigation systems for the DFDS fleet, and you've been selected by the Maritime Operations Team to troubleshoot it."
+          )
+          .break()
+          .type(
+            "When you arrive on the Command Bridge, you discover that the navigation calibration document (your puzzle input) has been amended by a junior developer who was eager to demonstrate their coding skills."
+          )
+          .break()
+          .type(
+            "What was supposed to be a simple coordinate file is now filled with extra characters."
+          )
+          .break()
+          .break()
+          .type("DESCRIPTION")
+          .break()
+          .type(
+            "The Maritime Operations Team needs your help to extract the correct values from this modified document."
+          )
+          .break()
+          .break()
+          .type(
+            "Each line of the document originally contained a specific navigation value that must be recovered."
+          )
+          .break()
+          .type(
+            "On each line, the navigation value can be found by combining the first digit and the last digit (in that order) to form a single two-digit number."
+          )
+          .break()
+          .break()
+          .type("EXAMPLE")
+          .break()
+          .type("te2st4 adf5aewd2gh a1b2c3d4e5f ferry7master")
+          .break()
+          .break()
+          .type(
+            "In this example, the navigation values of these four lines are `24`, `52`, `15`, and `77`. Adding these together produces `168`."
+          )
+          .break()
+          .break()
+          .type(
+            "Consider your entire navigation calibration document. What is the sum of all of the navigation values? Put your answer in FE Teams chat."
+          )
+          .break()
+          .break()
+          .type("PRESS X TO OPEN YOUR PUZZLE INPUT")
+          .go();
+      };
+
+      startInstance.type("PRESS ENTER TO START").pause(PAUSE_TIME).go();
+
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "x") {
+          window.open("./input.txt", "_blank");
+        }
+      });
+
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Enter") {
+          if (isStarted) return;
+
+          initialize();
+          isStarted = true;
+        }
+      });
+    </script>
+  </body>
+</html>
